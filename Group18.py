@@ -1,6 +1,16 @@
 import pygame as pg, sys, random, pdb, time
 from pygame.locals import *
 
+pg.mixer.init()
+
+click_sound = pg.mixer.Sound("click.wav")
+restart_sound = pg.mixer.Sound("restart.wav")
+high_score_sound = pg.mixer.Sound("high_score.wav")
+win_sound = pg.mixer.Sound("win.wav")
+pg.mixer.music.load("background_music.wav")
+pg.mixer.music.set_volume(0.5)  # Adjust volume
+pg.mixer.music.play(-1)
+
 class Timer:
   def __init__(self):
     self.start_time = time.time()
@@ -12,6 +22,7 @@ class Timer:
       return int(elapsed * 1000)
     else:
       return int(elapsed)
+
 
 def high_score(cur_score, f_name = "high_score.txt"):
   try:
@@ -40,6 +51,9 @@ start_secs = 300
 BLACK = (0, 0, 0)
 MED_GRAY = (160, 160, 160)
 WHITE = (255, 255, 255)
+
+move_count = 0
+restart_button_rect = pg.Rect(200, 5, 90, 24)
 
 # Thoughts
 # we have nine rects, 0 - 8 which make up the board
@@ -102,16 +116,19 @@ for x in range(9):
 adjacent_rects = [[1,3], [0,2,4], [1,5], [0, 4, 6], [1, 3, 5, 7], [2, 4, 8], [3, 7], [4, 6, 8], [5, 7]]
 
 def swap_with_zero(num):
+  global move_count
   zero_pos = positions.index(0)
   num_pos = positions.index(num)
   positions[zero_pos] = num
   positions[num_pos] = 0
+  move_count += 1
 
 def get_clicked_num(c_pos):
   for x in range(len(rects)):
     if rects[x].collidepoint(c_pos):
       if x in adjacent_rects[positions.index(0)]:
         # we have a click in a cell adjacent to the blank
+        click_sound.play()
         return positions[x]
       # we found the rect but it wasn't adjacent
       return -1
@@ -121,12 +138,26 @@ def get_clicked_num(c_pos):
 def get_x_coord(surf, screen_width = 302):
   return (screen_width - surf.get_rect().width) // 2
 
+def shuffle_positions():
+  global positions, move_count, timer
+  random.shuffle(positions)
+  move_count = 0
+  timer = Timer()
+
 def update_screen(elapsed):
   screen.fill(BLACK)
   # screen.blit(status_surf, (status_rect.x, status_rect.y))
-  timer_surf = font.render(f"{str(start_secs - elapsed // 1000)}", False, WHITE)
+  timer_surf = font.render(f"{str(start_secs - elapsed // 1000)}", True, WHITE)
   timer_surf_rect = timer_surf.get_rect()
   screen.blit(timer_surf, ((151 - timer_surf_rect.width // 2), 5))
+
+  moves_text = font.render(f"Moves: {move_count}", True, WHITE)
+  screen.blit(moves_text, (10, 5))
+
+  pg.draw.rect(screen, MED_GRAY, restart_button_rect)
+  restart_text = font.render("Restart", True, BLACK)
+  screen.blit(restart_text, (restart_button_rect.x + 5, restart_button_rect.y + 2))
+
   for idx in range (len(positions)):
     if positions[idx] != 0:
       screen.blit(surfs[idx], (rects[idx].x, rects[idx].y))
@@ -149,11 +180,15 @@ def check_for_win():
 def game_won(score):
   screen.fill(color = BLACK)
   hs_verb, hs = high_score(score)
+  if hs_verb == "beat":
+    high_score_sound.play()
+  win_sound.play()
   won_surf1 = font.render(f"Your score of:", False, WHITE)
   won_surf2 = font.render(f"{score} ", False, WHITE)
   won_surf3 = font.render(f"{hs_verb} the previous", False, WHITE)
   won_surf4 = font.render(f"high score of", False, WHITE)
   won_surf5 = font.render(f"{hs}", False, WHITE)
+  moves_surf = font.render(f"Moves used: {move_count}", False, WHITE)
   for x in range(300):
     for event in pg.event.get():
       if event.type == QUIT:
@@ -164,15 +199,15 @@ def game_won(score):
     screen.blit(won_surf3, (get_x_coord(won_surf3), 135))
     screen.blit(won_surf4, (get_x_coord(won_surf4), 165))
     screen.blit(won_surf5, (get_x_coord(won_surf5), 195))
+    screen.blit(moves_surf, (get_x_coord(moves_surf), 210))
     pg.display.flip()
     clock.tick(60)
 
 
 
+
 clock = pg.time.Clock()
 update_screen(0)
-
-breakpoint()
 
 clickpos = None
 timer = Timer()
@@ -186,9 +221,13 @@ while True:
       sys.exit(0)
     if event.type == pg.MOUSEBUTTONDOWN:
       clickpos = pg.mouse.get_pos()
-      clicked_num = get_clicked_num(clickpos)
-      if clicked_num != -1:
-        swap_with_zero(clicked_num)
+      if restart_button_rect.collidepoint(clickpos):
+        restart_sound.play()
+        shuffle_positions()
+      else:
+        clicked_num = get_clicked_num(clickpos)
+        if clicked_num != -1:
+          swap_with_zero(clicked_num)
       pg.event.clear()
     if keys[pg.K_c]:
       # quickly get in position to solve
