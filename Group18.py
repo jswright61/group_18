@@ -10,19 +10,14 @@
 
 import pygame as pg, sys, random, pdb
 from timer import Timer
+from high_score import HighScore
 from colors import *
 from board import Board
+from sound_player import SoundPlayer
 from pygame.locals import *
 
-pg.mixer.init()
-click_sound = pg.mixer.Sound("click.wav")
-restart_sound = pg.mixer.Sound("restart.wav")
-high_score_sound = pg.mixer.Sound("high_score.wav")
-win_sound = pg.mixer.Sound("win.wav")
-timeout_sound = pg.mixer.Sound("timeout.wav")
-pg.mixer.music.load("background_music.wav")
-pg.mixer.music.set_volume(0.2)  # Adjust volume
-pg.mixer.music.play(-1)
+
+sound_player = SoundPlayer(0.2)
 
 pg.init()
 tile_font = pg.font.Font(None, 32)
@@ -30,30 +25,6 @@ status_font = pg.font.Font(None, 32)
 end_screen_font = pg.font.Font(None, 32)
 button_font = pg.font.Font(None, 32)
 board = Board(98, tile_font)
-
-def high_score(cur_score, f_name = "high_score.txt"):
-  try:
-    f = open(f_name, "r")
-    hs = int(f.read())
-    f.close()
-  except (FileNotFoundError, ValueError) as e:
-    # if the file doesn't exist, or it's contents cannot be cast to an int, just set hs = 0
-    hs = 0
-  new_hs = False
-  if cur_score > hs:
-    f = open("high_score.txt", "w")
-    f.write(str(cur_score))
-    f.close()
-    verb = "beat"
-    color = GREEN
-    new_hs = True
-  elif cur_score == hs:
-    verb = "tied"
-    color = YELLOW
-  else:
-    verb = "failed to beat"
-    color = RED
-  return [hs, verb, color, new_hs]
 
 cl_args = list(map(lambda x: x.lower(), sys.argv[1:]))
 cheat = "cheat" in cl_args
@@ -68,18 +39,18 @@ status_rect = pg.Rect(0, 0, 302, 34)
 status_surf = pg.Surface((status_rect.w, status_rect.h))
 status_surf.fill(BLACK)
 
-restart_button_rect = pg.Rect(200, 5, 90, 24)
-restart_text = button_font.render("Exit", True, BLACK)
+exit_button_rect = pg.Rect(206, 5, 90, 24)
+exit_text = button_font.render("Exit", True, BLACK)
 quit_button_rect = pg.Rect(21, 270, 120, 24)
 quit_text = button_font.render("Quit", True, BLACK)
 play_again_button_rect = pg.Rect(161, 270, 120, 24)
 play_again_text = button_font.render("Play again", True, BLACK)
 
 
-def get_x_coord(surf, screen_width = 302):
+def get_x_coord(surf, screen_width = resolution[0]):
   return (screen_width - surf.get_rect().width) // 2
 
-def update_screen(elapsed, move_count):
+def update_main_screen(elapsed, move_count):
   screen.fill(BLACK)
   timer_surf = status_font.render(f"{str(allowed_secs - elapsed)}", True, WHITE)
   screen.blit(timer_surf, ((302 - timer_surf.get_width()) // 2, 5))
@@ -87,29 +58,28 @@ def update_screen(elapsed, move_count):
   moves_text = status_font.render(f"Moves: {move_count}", True, WHITE)
   screen.blit(moves_text, (10, 5))
 
-  pg.draw.rect(screen, RED, restart_button_rect)
-  screen.blit(restart_text, (restart_button_rect.x + 22, restart_button_rect.y + 2))
+  pg.draw.rect(screen, RED, exit_button_rect)
+  screen.blit(exit_text, (exit_button_rect.x + 22, exit_button_rect.y + 2))
+  board.blit(screen)
 
-  for idx in range (len(board.positions)):
-    if board.positions[idx] != 0:
-      screen.blit(board.surfs[idx], (board.rects[idx].x, board.rects[idx].y))
-      screen.blit(board.font_surfs[board.positions[idx]], board.font_origins[idx])
   pg.display.flip()
 
 def game_won(score, move_count):
+  hi_score = HighScore()
+  sound_player.bg_stop()
   screen.fill(color = BLACK)
-  hs, hs_verb, hs_text_color, new_hs = high_score(score)
-  if new_hs:
-    high_score_sound.play()
-  win_sound.play()
+  prev_hs, hs_verb, hs_text_color = hi_score.check_high_score(score)
+  if score > prev_hs:
+    sound_player.play("high_score")
+  sound_player.play("win")
   if debug:
-    print(f"Your score of: {score} {hs_verb} the previous high score of {hs}")
+    print(f"Your score of: {score} {hs_verb} the previous high score of {prev_hs}")
     print(f"Moves used: {move_count}")
   over_surf_1 = end_screen_font.render(f"Your score of:", True, WHITE)
   over_surf_2 = end_screen_font.render(f"{score} ", True, hs_text_color)
   over_surf_3 = end_screen_font.render(f"{hs_verb} the previous", True, hs_text_color)
   over_surf_4 = end_screen_font.render(f"high score of", True, WHITE)
-  over_surf_5 = end_screen_font.render(f"{hs}", True, WHITE)
+  over_surf_5 = end_screen_font.render(f"{prev_hs}", True, WHITE)
   moves_surf = end_screen_font.render(f"Moves used: {move_count}", True, WHITE)
   screen.blit(over_surf_1, (get_x_coord(over_surf_1), 70))
   screen.blit(over_surf_2, (get_x_coord(over_surf_2), 100))
@@ -134,13 +104,14 @@ def game_won(score, move_count):
           random.shuffle(board.positions)
           move_count = 0
           play_game()
-          restart_sound.play()
+          sound_player.play("restart")
       pg.event.clear()
     clock.tick(60)
 
 def game_exit(display_text, play_sound = False ):
+  sound_player.bg_stop()
   if play_sound:
-    timeout_sound.play()
+    sound_player.play("time_expired")
   # TODO refactor to game_over to handle both win and timeout
   screen.fill(color = BLACK)
   over_surf_1 = end_screen_font.render(f"{display_text}", True, WHITE)
@@ -160,45 +131,53 @@ def game_exit(display_text, play_sound = False ):
           sys.exit(0)
         if play_again_button_rect.collidepoint(clickpos):
           random.shuffle(board.positions)
-          restart_sound.play()
+          sound_player.play("restart")
           play_game()
       pg.event.clear()
     clock.tick(60)
 
+def process_special_keys(key, modifiers, timer):
+  if key == pg.K_ESCAPE:
+    sys.exit(0)
+  if key == pg.K_u:
+    sound_player.volume_up()
+  if key == pg.K_d:
+    sound_player.volume_down()
+  if key == pg.K_m and modifiers & pg.KMOD_CTRL:
+    # m plus CTRL key
+    sound_player.mute()
+  if cheat and key == pg.K_c and modifiers & pg.KMOD_CTRL:
+    # c plus CTRL only in cheat mode
+      board.cheat()
+  if cheat and key == pg.K_e and modifiers & pg.KMOD_CTRL:
+    # e plus CTRL only in cheat mode
+    timer.reset(allowed_secs - 5)
+  if debug and key == pg.K_p:
+    breakpoint()
+  if debug and key == pg.K_s  and modifiers & pg.KMOD_CTRL:
+    sound_player.play("sound not present")
+
 def play_game():
+  sound_player.bg_start()
   move_count = 0
   clickpos = None
   timer = Timer()
   while True:
-    update_screen(timer.elapsed(), move_count)
-    keys = pg.key.get_pressed()
-    if keys[pg.K_ESCAPE]:
-      sys.exit(0)
-    if cheat and keys[pg.K_c] and (keys[pg.K_RCTRL] or keys[pg.K_LCTRL]):
-      # quickly get in position to solve
-      # must pass command line argument "cheat" (no quotes, case insensitive)
-      # for cheat to work
-      board.cheat()
-    if cheat and keys[pg.K_e]  and (keys[pg.K_RCTRL] or keys[pg.K_LCTRL]):
-      # This will take seconds off the clock to allow testing timeout
-      timer.reset(295)
-    if debug and keys[pg.K_p] and (keys[pg.K_RCTRL] or keys[pg.K_LCTRL]):
-      # pause for debugging
-      # must pass command line argument "debug" (no quotes, case insensitive)
-      # for pause to work
-      breakpoint()
+    update_main_screen(timer.elapsed(), move_count)
     for event in pg.event.get():
       if event.type == QUIT:
         sys.exit(0)
       if event.type == pg.MOUSEBUTTONDOWN:
         clickpos = pg.mouse.get_pos()
-        if restart_button_rect.collidepoint(clickpos):
+        if exit_button_rect.collidepoint(clickpos):
           game_exit("Game exited")
         else:
           if board.click(clickpos) == 1:
             move_count += 1
-            click_sound.play()
+            sound_player.play("click")
         pg.event.clear()
+      if event.type == pg.KEYDOWN:
+        process_special_keys(event.key, pg.key.get_mods(), timer)
     if board.is_game_won():
       game_won(allowed_secs - timer.elapsed(), move_count)
       break
@@ -209,7 +188,7 @@ def play_game():
     clock.tick(60)
 
 clock = pg.time.Clock()
-update_screen(0, 0)
+update_main_screen(0, 0)
 play_game()
 
 # Game Over

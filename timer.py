@@ -12,4 +12,5 @@ class Timer:
       return int(elapsed)
 
   def reset(self, offset = 0):
+    # positive offset value moves the start time back by the offset num of secods
     self.start_time = time.time() - offset

@@ -1,12 +1,6 @@
 import pygame as pg, random
 from colors import *
 
-
-# pg.init()
-# font = pg.font.Font(None, 32)
-
-
-
 class Board():
   def __init__(self, rect_width, font, border_size = 2, status_height = 30, tile_color = None, font_color = None):
     # we have nine cells, 0 - 8 which make up the board
@@ -23,13 +17,15 @@ class Board():
     self.screen_size = (rect_width * 3 + border_size * 4, rect_width * 3 + border_size * 4 + status_height)
     self.positions = list(range(9))
     self.shuffle_positions()
-    self.adjacent_rects = ((1,3), (0,2,4), (1,5), (0, 4, 6), (1, 3, 5, 7), (2, 4, 8), (3, 7), (4, 6, 8), (5, 7))
-    self.build_rects()
-    self.build_fonts()
-    self.build_font_origins()
+    # These control where clicks can do something
+    # the index is the rect number of the blank tile
+    # the element is a list of rect numbers that are adjacent to that blank tile
+    self.__adjacent_rects = ((1,3), (0,2,4), (1,5), (0, 4, 6), (1, 3, 5, 7), (2, 4, 8), (3, 7), (4, 6, 8), (5, 7))
+    self.__build_rects()
+    self.__build_fonts()
+    self.__build_font_origins()
 
-  def build_rects(self):
-    print("building rects")
+  def __build_rects(self):
     self.rects = []
     self.surfs = []
     y_origins = (self.status_height + self.border_size,
@@ -45,16 +41,16 @@ class Board():
         self.rects.append(r)
         self.surfs.append(r_surf)
 
-  def build_fonts(self):
-    print("building fonts")
+  def __build_fonts(self):
     self.font_surfs = []
     for x in range(9):
       # we're never gonna use surfs[0] with "0", but it just keeps things tidy to have index = actual digit
       s = self.font.render(str(x), True, self.font_color)
       self.font_surfs.append(s)
 
-  def build_font_origins(self):
-    print("building font origins")
+  def __build_font_origins(self):
+    if not self.rects:
+      self.__build_rects()
     self.font_origins = []
     for idx in range(len(self.rects)):
       font_rect = self.font_surfs[idx].get_rect()
@@ -74,7 +70,7 @@ class Board():
     # TODO play sound and increment moves in calling code this object just handles code
     for x in range(len(self.rects)):
       if self.rects[x].collidepoint(click_pos):
-        if x in self.adjacent_rects[self.positions.index(0)]:
+        if x in self.__adjacent_rects[self.positions.index(0)]:
           # we have a click in a cell adjacent to the blank cell
           # so swap the num in the positions list at this index with 0 in the positions list
           self.swap_with_zero(self.positions[x])
@@ -100,8 +96,8 @@ class Board():
     # three moves away from a win
     self.positions = [1, 2, 3, 4, 6, 8, 7, 5, 0]
 
-# rw = input("Enter the size of each side of your square: ")
-# rw = int(rw)
-# b = Board(rw, font)
-# print(b.positions)
-# breakpoint()
+  def blit(self, screen):
+    for idx in range (len(self.positions)):
+      if self.positions[idx] != 0:
+        screen.blit(self.surfs[idx], (self.rects[idx].x, self.rects[idx].y))
+        screen.blit(self.font_surfs[self.positions[idx]], self.font_origins[idx])
