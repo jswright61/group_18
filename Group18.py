@@ -93,6 +93,9 @@ def game_won(score, move_count):
   screen.blit(play_again_text, (play_again_button_rect.x + 6, play_again_button_rect.y + 2))
   pg.display.flip()
   while True:
+    # This shows the screen indefinitely while processing events
+    # no need to blit the screen or flip display because it's static
+    # the sound is off
     for event in pg.event.get():
       if event.type == QUIT:
         sys.exit(0)
@@ -112,7 +115,6 @@ def game_exit(display_text, play_sound = False ):
   sound_player.bg_stop()
   if play_sound:
     sound_player.play("time_expired")
-  # TODO refactor to game_over to handle both win and timeout
   screen.fill(color = BLACK)
   over_surf_1 = end_screen_font.render(f"{display_text}", True, WHITE)
   screen.blit(over_surf_1, (get_x_coord(over_surf_1), 140))
