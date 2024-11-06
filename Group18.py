@@ -15,6 +15,7 @@ from colors import *
 from board import Board
 from sound_player import SoundPlayer
 from pygame.locals import *
+import os.path
 
 
 sound_player = SoundPlayer(0.2)
@@ -23,6 +24,7 @@ pg.init()
 tile_font = pg.font.Font(None, 32)
 status_font = pg.font.Font(None, 32)
 end_screen_font = pg.font.Font(None, 32)
+inst_screen_font = pg.font.Font(None, 20)
 button_font = pg.font.Font(None, 32)
 board = Board(98, tile_font)
 
@@ -45,10 +47,55 @@ quit_button_rect = pg.Rect(21, 270, 120, 24)
 quit_text = button_font.render("Quit", True, BLACK)
 play_again_button_rect = pg.Rect(161, 270, 120, 24)
 play_again_text = button_font.render("Play again", True, BLACK)
+start_game_button_rect = pg.Rect(91, 280, 120, 24)
+start_game_text = button_font.render("Play game", True, BLACK)
 
 
 def get_x_coord(surf, screen_width = resolution[0]):
   return (screen_width - surf.get_rect().width) // 2
+
+def show_instructions():
+  if os.path.isfile("skip_instructions.txt"):
+    return False
+  return True
+
+def instructions_screen():
+  screen.fill(color = BLACK)
+  inst_surf_1 = inst_screen_font.render(f"Arrange the tiles left to right", True, WHITE)
+  inst_surf_2 = inst_screen_font.render(f"from top to bottom in ascending order.", True, WHITE)
+  inst_surf_3 = inst_screen_font.render(f"Move a tile into the blank space by", True, WHITE)
+  inst_surf_4 = inst_screen_font.render(f"clicking a tile next to the blank space.", True, WHITE)
+  inst_surf_5 = inst_screen_font.render(f"Image below shows tiles in winning postion.", True, WHITE)
+  # moves_surf = inst_screen_font.render(f"Moves used: {move_count}", True, WHITE)
+  game_won = pg.transform.scale(pg.image.load("tile_game.jpg").convert_alpha(), (100, 100))
+  screen.blit(inst_surf_1, (get_x_coord(inst_surf_1), 20))
+  screen.blit(inst_surf_2, (get_x_coord(inst_surf_2), 50))
+  screen.blit(inst_surf_3, (get_x_coord(inst_surf_3), 80))
+  screen.blit(inst_surf_4, (get_x_coord(inst_surf_4), 110))
+  screen.blit(inst_surf_5, (get_x_coord(inst_surf_5), 140))
+  # screen.blit(moves_surf, (get_x_coord(moves_surf), 220))
+  screen.blit(game_won, (101, 160))
+  pg.draw.rect(screen, GREEN, start_game_button_rect)
+  screen.blit(start_game_text, (start_game_button_rect.x + 6, start_game_button_rect.y + 2))
+  pg.display.flip()
+  while True:
+    # This shows the screen indefinitely while processing events
+    # no need to blit the screen or flip display because it's static
+    # the sound is off
+    for event in pg.event.get():
+      if event.type == QUIT:
+        sys.exit(0)
+      if event.type == pg.MOUSEBUTTONDOWN:
+        clickpos = pg.mouse.get_pos()
+        if quit_button_rect.collidepoint(clickpos):
+          sys.exit(0)
+        if start_game_button_rect.collidepoint(clickpos):
+          random.shuffle(board.positions)
+          move_count = 0
+          play_game()
+      pg.event.clear()
+    clock.tick(60)
+
 
 def update_main_screen(elapsed, move_count):
   screen.fill(BLACK)
@@ -190,7 +237,10 @@ def play_game():
     clock.tick(60)
 
 clock = pg.time.Clock()
-update_main_screen(0, 0)
-play_game()
+if show_instructions():
+  instructions_screen()
+else:
+  update_main_screen(0, 0)
+  play_game()
 
 # Game Over
