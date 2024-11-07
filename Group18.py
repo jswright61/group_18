@@ -54,27 +54,25 @@ start_game_text = button_font.render("Play game", True, BLACK)
 def get_x_coord(surf, screen_width = resolution[0]):
   return (screen_width - surf.get_rect().width) // 2
 
-def show_instructions():
+def should_show_instructions():
   if os.path.isfile("skip_instructions.txt"):
     return False
   return True
 
-def instructions_screen():
+def display_instructions_screen():
   screen.fill(color = BLACK)
   inst_surf_1 = inst_screen_font.render(f"Arrange the tiles left to right", True, WHITE)
   inst_surf_2 = inst_screen_font.render(f"from top to bottom in ascending order.", True, WHITE)
   inst_surf_3 = inst_screen_font.render(f"Move a tile into the blank space by", True, WHITE)
   inst_surf_4 = inst_screen_font.render(f"clicking a tile next to the blank space.", True, WHITE)
-  inst_surf_5 = inst_screen_font.render(f"Image below shows tiles in winning postion.", True, WHITE)
-  # moves_surf = inst_screen_font.render(f"Moves used: {move_count}", True, WHITE)
-  game_won = pg.transform.scale(pg.image.load("tile_game.jpg").convert_alpha(), (100, 100))
+  inst_surf_5 = inst_screen_font.render(f"Image below shows tiles in winning position.", True, WHITE)
+  game_won_img_surf = pg.transform.scale(pg.image.load("tile_game.jpg").convert_alpha(), (100, 100))
   screen.blit(inst_surf_1, (get_x_coord(inst_surf_1), 20))
   screen.blit(inst_surf_2, (get_x_coord(inst_surf_2), 50))
   screen.blit(inst_surf_3, (get_x_coord(inst_surf_3), 80))
   screen.blit(inst_surf_4, (get_x_coord(inst_surf_4), 110))
   screen.blit(inst_surf_5, (get_x_coord(inst_surf_5), 140))
-  # screen.blit(moves_surf, (get_x_coord(moves_surf), 220))
-  screen.blit(game_won, (101, 160))
+  screen.blit(game_won_img_surf, (101, 160))
   pg.draw.rect(screen, GREEN, start_game_button_rect)
   screen.blit(start_game_text, (start_game_button_rect.x + 6, start_game_button_rect.y + 2))
   pg.display.flip()
@@ -96,8 +94,7 @@ def instructions_screen():
       pg.event.clear()
     clock.tick(60)
 
-
-def update_main_screen(elapsed, move_count):
+def display_main_screen(elapsed, move_count):
   screen.fill(BLACK)
   timer_surf = status_font.render(f"{str(allowed_secs - elapsed)}", True, WHITE)
   screen.blit(timer_surf, ((302 - timer_surf.get_width()) // 2, 5))
@@ -111,7 +108,7 @@ def update_main_screen(elapsed, move_count):
 
   pg.display.flip()
 
-def game_won(score, move_count):
+def display_game_won_screen(score, move_count):
   hi_score = HighScore()
   sound_player.bg_stop()
   screen.fill(color = BLACK)
@@ -158,7 +155,7 @@ def game_won(score, move_count):
       pg.event.clear()
     clock.tick(60)
 
-def game_exit(display_text, play_sound = False ):
+def display_game_exit_screen(display_text, play_sound = False ):
   sound_player.bg_stop()
   if play_sound:
     sound_player.play("time_expired")
@@ -212,14 +209,14 @@ def play_game():
   clickpos = None
   timer = Timer()
   while True:
-    update_main_screen(timer.elapsed(), move_count)
+    display_main_screen(timer.elapsed(), move_count)
     for event in pg.event.get():
       if event.type == QUIT:
         sys.exit(0)
       if event.type == pg.MOUSEBUTTONDOWN:
         clickpos = pg.mouse.get_pos()
         if exit_button_rect.collidepoint(clickpos):
-          game_exit("Game exited")
+          display_game_exit_screen("Game exited")
         else:
           if board.click(clickpos) == 1:
             move_count += 1
@@ -228,19 +225,19 @@ def play_game():
       if event.type == pg.KEYDOWN:
         process_special_keys(event.key, pg.key.get_mods(), timer)
     if board.is_game_won():
-      game_won(allowed_secs - timer.elapsed(), move_count)
+      display_game_won_screen(allowed_secs - timer.elapsed(), move_count)
       break
     if allowed_secs - timer.elapsed() < 1:
-      game_exit("Time expired", True)
+      display_game_exit_screen("Time expired", True)
       break
 
     clock.tick(60)
 
 clock = pg.time.Clock()
-if show_instructions():
-  instructions_screen()
+if should_show_instructions():
+  display_instructions_screen()
 else:
-  update_main_screen(0, 0)
+  display_main_screen(0, 0)
   play_game()
 
 # Game Over
