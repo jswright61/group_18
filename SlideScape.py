@@ -1,7 +1,7 @@
 # Class: CSE 1321
-# Section: WE1
+# Section: W02
 # Term: Fall 2024
-# Instructor: Nick Mrphy
+# Instructor: Nick Murphy
 # Group 18
 # Members: Ernie Fichtel, Seqouya Jackson, Oneeb Kahn, Jonathan Parson, Scott Wright
 # Group Project
@@ -21,6 +21,7 @@ import os.path
 sound_player = SoundPlayer(0.2)
 
 pg.init()
+pg.display.set_caption("SlideScape")
 tile_font = pg.font.Font(None, 32)
 status_font = pg.font.Font(None, 32)
 end_screen_font = pg.font.Font(None, 32)
@@ -46,16 +47,20 @@ exit_text = button_font.render("Exit", True, BLACK)
 quit_button_rect = pg.Rect(21, 270, 120, 24)
 quit_text = button_font.render("Quit", True, BLACK)
 play_again_button_rect = pg.Rect(161, 270, 120, 24)
-play_again_text = button_font.render("Play again", True, BLACK)
+play_again_text = button_font.render("Play Again", True, BLACK)
 start_game_button_rect = pg.Rect(91, 280, 120, 24)
-start_game_text = button_font.render("Play game", True, BLACK)
+start_game_text = button_font.render("Play Game", True, BLACK)
 
 
 def get_x_coord(surf, screen_width = resolution[0]):
   return (screen_width - surf.get_rect().width) // 2
 
 def should_show_instructions():
-  if os.path.isfile("skip_instructions.txt"):
+  # the presence of a file named "skip_instructions.txt" in the same directory as the game file
+  # will cause the instructions screen to be skipped and the game will begin immediately on launch
+  # to create the file, issue the following command from your teminal in the same directory where your game exists:
+  # touch skip_instructions.txt
+  if os.path.isfile("skip_instructions.txt") or "skip_instructions" in cl_args:
     return False
   return True
 
@@ -74,7 +79,7 @@ def display_instructions_screen():
   screen.blit(inst_surf_5, (get_x_coord(inst_surf_5), 140))
   screen.blit(game_won_img_surf, (101, 160))
   pg.draw.rect(screen, GREEN, start_game_button_rect)
-  screen.blit(start_game_text, (start_game_button_rect.x + 6, start_game_button_rect.y + 2))
+  screen.blit(start_game_text, (start_game_button_rect.x + 3, start_game_button_rect.y + 2))
   pg.display.flip()
   while True:
     # This shows the screen indefinitely while processing events
@@ -165,7 +170,7 @@ def display_game_exit_screen(display_text, play_sound = False ):
   pg.draw.rect(screen, RED, quit_button_rect)
   screen.blit(quit_text, (quit_button_rect.x + 35, quit_button_rect.y + 2))
   pg.draw.rect(screen, GREEN, play_again_button_rect)
-  screen.blit(play_again_text, (play_again_button_rect.x + 6, play_again_button_rect.y + 2))
+  screen.blit(play_again_text, (play_again_button_rect.x + 3, play_again_button_rect.y + 2))
   pg.display.flip()
   while True:
     for event in pg.event.get():
