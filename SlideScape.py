@@ -3,7 +3,7 @@
 # Term: Fall 2024
 # Instructor: Nick Murphy
 # Group 18
-# Members: Ernie Fichtel, Seqouya Jackson, Oneeb Kahn, Jonathan Parson, Scott Wright
+# Members: Ernie Fichtel, Seqouya Jackson, Oneeb Khan, Jonathan Parson, Scott Wright
 # Group Project
 
 
