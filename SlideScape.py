@@ -28,6 +28,7 @@ end_screen_font = pg.font.Font(None, 32)
 inst_screen_font = pg.font.Font(None, 20)
 button_font = pg.font.Font(None, 32)
 board = Board(98, tile_font)
+# screen size = (302, 332) with 98 size tile
 
 cl_args = list(map(lambda x: x.lower(), sys.argv[1:]))
 cheat = "cheat" in cl_args
@@ -48,7 +49,7 @@ quit_button_rect = pg.Rect(21, 270, 120, 24)
 quit_text = button_font.render("Quit", True, BLACK)
 play_again_button_rect = pg.Rect(161, 270, 120, 24)
 play_again_text = button_font.render("Play Again", True, BLACK)
-start_game_button_rect = pg.Rect(91, 280, 120, 24)
+start_game_button_rect = pg.Rect(91, 285, 120, 24)
 start_game_text = button_font.render("Play Game", True, BLACK)
 
 
@@ -66,12 +67,12 @@ def should_show_instructions():
 
 def display_instructions_screen():
   screen.fill(color = BLACK)
-  inst_surf_1 = inst_screen_font.render(f"Arrange the tiles left to right", True, WHITE)
-  inst_surf_2 = inst_screen_font.render(f"from top to bottom in ascending order.", True, WHITE)
-  inst_surf_3 = inst_screen_font.render(f"Move a tile into the blank space by", True, WHITE)
-  inst_surf_4 = inst_screen_font.render(f"clicking a tile next to the blank space.", True, WHITE)
+  inst_surf_1 = inst_screen_font.render(f"Arrange the tiles in ascending order.", True, WHITE)
+  inst_surf_2 = inst_screen_font.render(f"Move a tile by clicking it. Only tiles next to", True, WHITE)
+  inst_surf_3 = inst_screen_font.render(f"the blank space can move. A moved tile", True, WHITE)
+  inst_surf_4 = inst_screen_font.render(f"swaps places with the blank space.", True, WHITE)
   inst_surf_5 = inst_screen_font.render(f"Image below shows tiles in winning position.", True, WHITE)
-  game_won_img_surf = pg.transform.scale(pg.image.load("tile_game.jpg").convert_alpha(), (100, 100))
+  game_won_img_surf = pg.transform.scale(pg.image.load("tile_game.jpg").convert_alpha(), (101, 111))
   screen.blit(inst_surf_1, (get_x_coord(inst_surf_1), 20))
   screen.blit(inst_surf_2, (get_x_coord(inst_surf_2), 50))
   screen.blit(inst_surf_3, (get_x_coord(inst_surf_3), 80))
