@@ -18,7 +18,7 @@ from pygame.locals import *
 import os.path
 
 
-sound_player = SoundPlayer(0.2)
+
 
 pg.init()
 pg.display.set_caption("SlideScape")
@@ -31,8 +31,7 @@ board = Board(98, tile_font)
 # screen size = (302, 332) with 98 size tile
 
 cl_args = list(map(lambda x: x.lower(), sys.argv[1:]))
-cheat = "cheat" in cl_args
-debug = "debug" in cl_args
+sound_player = SoundPlayer(0.2, "mute" in cl_args)
 allowed_secs = 300
 
 resolution = (board.screen_size)
@@ -87,12 +86,12 @@ def display_instructions_screen():
     # no need to blit the screen or flip display because it's static
     # the sound is off
     for event in pg.event.get():
+      if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+        sys.exit(0)
       if event.type == QUIT:
         sys.exit(0)
       if event.type == pg.MOUSEBUTTONDOWN:
         clickpos = pg.mouse.get_pos()
-        if quit_button_rect.collidepoint(clickpos):
-          sys.exit(0)
         if start_game_button_rect.collidepoint(clickpos):
           random.shuffle(board.positions)
           move_count = 0
@@ -122,7 +121,7 @@ def display_game_won_screen(score, move_count):
   if score > prev_hs:
     sound_player.play("high_score")
   sound_player.play("win")
-  if debug:
+  if "debug" in cl_args:
     print(f"Your score of: {score} {hs_verb} the previous high score of {prev_hs}")
     print(f"Moves used: {move_count}")
   over_surf_1 = end_screen_font.render(f"Your score of:", True, WHITE)
@@ -147,6 +146,8 @@ def display_game_won_screen(score, move_count):
     # no need to blit the screen or flip display because it's static
     # the sound is off
     for event in pg.event.get():
+      if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+        sys.exit(0)
       if event.type == QUIT:
         sys.exit(0)
       if event.type == pg.MOUSEBUTTONDOWN:
@@ -175,6 +176,8 @@ def display_game_exit_screen(display_text, play_sound = False ):
   pg.display.flip()
   while True:
     for event in pg.event.get():
+      if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+        sys.exit(0)
       if event.type == QUIT:
         sys.exit(0)
       if event.type == pg.MOUSEBUTTONDOWN:
@@ -198,16 +201,14 @@ def process_special_keys(key, modifiers, timer):
   if key == pg.K_m and modifiers & pg.KMOD_CTRL:
     # m plus CTRL key
     sound_player.mute()
-  if cheat and key == pg.K_c and modifiers & pg.KMOD_CTRL:
+  if "cheat" in cl_args and key == pg.K_c and modifiers & pg.KMOD_CTRL:
     # c plus CTRL only in cheat mode
       board.cheat()
-  if cheat and key == pg.K_e and modifiers & pg.KMOD_CTRL:
+  if "cheat" in cl_args and key == pg.K_e and modifiers & pg.KMOD_CTRL:
     # e plus CTRL only in cheat mode
     timer.reset(allowed_secs - 5)
-  if debug and key == pg.K_p:
+  if "debug" in cl_args and key == pg.K_p:
     breakpoint()
-  if debug and key == pg.K_s  and modifiers & pg.KMOD_CTRL:
-    sound_player.play("sound not present")
 
 def play_game():
   sound_player.bg_start()
