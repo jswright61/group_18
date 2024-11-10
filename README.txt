@@ -6,23 +6,32 @@ How to Play:
 
 Installation:
      PyCharm Instructions~
-        Download Group18.zip file. Unzip the file into a new directory.
-        Open PyCharm IDE and create a project. Name it SlideScape.
-        Go to file at the top left. Click on settings. Press the '+' and type 'Pygame'. Click 'install package' and then click 'ok'.
-        Go to File Explorer (Windows) or the Finder (Mac) and copy all the extracted files and paste/move them to the SlideScape directory in PyCharm.
-        All files will be pasted under the scripts directory.
-        Select 'SlideScape.py'
-        Optional: click the 3 vertical dots to the right of the debug option. Under configutration select 'Edit' in the Script Parameters box enter any Command Line arguments you wish. Each argument should be in double quotes and separated by a space.
-        Click the run icon to start the game.
+          Download Group18.zip file. Unzip the file into a new directory.
+          Open PyCharm IDE and create a project. Name it SlideScape.
+          Go to file at the top left. Click on settings. Press the '+' and type 'Pygame'. Click 'install package' and then click 'ok'.
+          Go to File Explorer (Windows) or the Finder (Mac) and copy all the extracted files and paste/move them to the SlideScape directory in PyCharm.
+          All files will be pasted under the scripts directory.
+          Select 'SlideScape.py'
+          Optional: click the 3 vertical dots to the right of the debug option. Under configutration select 'Edit' in the Script Parameters box enter any Command Line arguments you wish. Each argument should be in double quotes and separated by a space.
+          Click the run icon to start the game.
+
+     Command Line Installation:
+        Unzip the files to a new directory.
+        Make sure you are running a recent version of Python (3.11 or higher should be fine)
+        Make sure you have the Pygame library installed and available (search for Pip install Pygame)
+        launch the program:
+        $ python3 SlideScape.py
+        Optionally provide Command Line Arguments when launching:
+        $ python3 SlideScape.py mute cheat
 
 Special Keys:
-        Ctrl + u ~ Increases the volume level of the background music. [Supplementary sound effects are still active.]
-        Ctrl + d ~ Decreases the volume level of the background music. [Supplementary sound effects are still active.]
-        Ctrl + m ~ Mutes background music. [Supplementary sound effects are still active.]
-        Escape Key ~ Immediately exits the program from any screen.
-        Ctrl + e [ONLY IN CHEAT MODE] ~ Causes the timer to drop to 5 seconds to check the time expiration.
-        Ctrl + c [ONLY IN CHEAT MODE] ~ Rearranges the tiles to display obvious moves to win the game quickly.
-        Ctrl + p [ONLY IN DEBUG MODE] ~ pauses the user in a Python REPL where the user has the ability to observe variables.
+     Ctrl + u ~ Increases the volume level of the background music. [Supplementary sound effects are still active.]
+     Ctrl + d ~ Decreases the volume level of the background music. [Supplementary sound effects are still active.]
+     Ctrl + m ~ Mutes background music. [Supplementary sound effects are still active.]
+     Escape Key ~ Immediately exits the program from any screen.
+     Ctrl + e [ONLY IN CHEAT MODE] ~ Causes the timer to drop to 5 seconds to check the time expiration.
+     Ctrl + c [ONLY IN CHEAT MODE] ~ Rearranges the tiles to display obvious moves to win the game quickly.
+     Ctrl + p [ONLY IN DEBUG MODE] ~ pauses the user in a Python REPL where the user has the ability to observe variables.
 
 Command Line Arguments:
      There are several Command Line arguments that can alter certain aspects of the game.
