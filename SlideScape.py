@@ -57,9 +57,11 @@ def get_x_coord(surf, screen_width = resolution[0]):
 
 def should_show_instructions():
   # the presence of a file named "skip_instructions.txt" in the same directory as the game file
-  # will cause the instructions screen to be skipped and the game will begin immediately on launch
+  # will cause the instructions screen to be skipped and gameplay will begin immediately on launch
   # to create the file, issue the following command from your teminal in the same directory where your game exists:
   # touch skip_instructions.txt
+  if "show_instructions" in cl_args:
+    return True
   if os.path.isfile("skip_instructions.txt") or "skip_instructions" in cl_args:
     return False
   return True
