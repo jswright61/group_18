@@ -3,7 +3,7 @@
 # Term: Fall 2024
 # Instructor: Nick Murphy
 # Group 18
-# Members: Ernie Fichtel, Seqouya Jackson, Oneeb Khan, Jonathan Parson, Scott Wright
+# Members: Ernie Fichtel, Sequoya Jackson, Oneeb Khan, Jonathan Parson, Scott Wright
 # Group Project
 
 
@@ -34,7 +34,7 @@ cl_args = list(map(lambda x: x.lower(), sys.argv[1:]))
 sound_player = SoundPlayer(0.2, "mute" in cl_args)
 allowed_secs = 300
 
-resolution = (board.screen_size)
+resolution = board.screen_size
 screen = pg.display.set_mode(resolution)
 screen.fill(color = BLACK)
 
@@ -93,10 +93,9 @@ def display_instructions_screen():
       if event.type == QUIT:
         sys.exit(0)
       if event.type == pg.MOUSEBUTTONDOWN:
-        clickpos = pg.mouse.get_pos()
-        if start_game_button_rect.collidepoint(clickpos):
+        click_pos = pg.mouse.get_pos()
+        if start_game_button_rect.collidepoint(click_pos):
           random.shuffle(board.positions)
-          move_count = 0
           play_game()
       pg.event.clear()
     clock.tick(60)
@@ -153,12 +152,11 @@ def display_game_won_screen(score, move_count):
       if event.type == QUIT:
         sys.exit(0)
       if event.type == pg.MOUSEBUTTONDOWN:
-        clickpos = pg.mouse.get_pos()
-        if quit_button_rect.collidepoint(clickpos):
+        click_pos = pg.mouse.get_pos()
+        if quit_button_rect.collidepoint(click_pos):
           sys.exit(0)
-        if play_again_button_rect.collidepoint(clickpos):
+        if play_again_button_rect.collidepoint(click_pos):
           random.shuffle(board.positions)
-          move_count = 0
           play_game()
           sound_player.play("restart")
       pg.event.clear()
@@ -183,10 +181,10 @@ def display_game_exit_screen(display_text, play_sound = False ):
       if event.type == QUIT:
         sys.exit(0)
       if event.type == pg.MOUSEBUTTONDOWN:
-        clickpos = pg.mouse.get_pos()
-        if quit_button_rect.collidepoint(clickpos):
+        click_pos = pg.mouse.get_pos()
+        if quit_button_rect.collidepoint(click_pos):
           sys.exit(0)
-        if play_again_button_rect.collidepoint(clickpos):
+        if play_again_button_rect.collidepoint(click_pos):
           random.shuffle(board.positions)
           sound_player.play("restart")
           play_game()
@@ -215,7 +213,6 @@ def process_special_keys(key, modifiers, timer):
 def play_game():
   sound_player.bg_start()
   move_count = 0
-  clickpos = None
   timer = Timer()
   while True:
     display_main_screen(timer.elapsed(), move_count)
@@ -223,11 +220,11 @@ def play_game():
       if event.type == QUIT:
         sys.exit(0)
       if event.type == pg.MOUSEBUTTONDOWN:
-        clickpos = pg.mouse.get_pos()
-        if exit_button_rect.collidepoint(clickpos):
+        click_pos = pg.mouse.get_pos()
+        if exit_button_rect.collidepoint(click_pos):
           display_game_exit_screen("Game exited")
         else:
-          if board.click(clickpos) == 1:
+          if board.click(click_pos) == 1:
             move_count += 1
             sound_player.play("click")
         pg.event.clear()

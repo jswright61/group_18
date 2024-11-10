@@ -1,5 +1,5 @@
 What is SlideScape?
-     SlideScape is a fun and interactive game specifically designed to engage minds with an intriguing sliding number puzzle with a twist of urgency due to the included timer. SlideScape was created by "Group 18" as a Programming Problem Solving project at Kennesaw State University. [Group 18 includes: Ernie Fichtel, Scott Wright, Oneeb Khan, and Sequoya Jackson]
+     SlideScape is a fun and interactive game specifically designed to engage minds with an intriguing sliding number puzzle with a twist of urgency due to the included timer. SlideScape was created by "Group 18" as a Programming Problem Solving project at Kennesaw State University. [Group 18 includes: Jonathan Parson, Ernie Fichtel, Scott Wright, Oneeb Khan, and Sequoya Jackson]
 
 How to Play:
      The object of the game is to slide each number tile one-by-one to put them in ascending order from left to right and top to bottom. When a tile with an empty space next to it is clicked, the tile will then move into that empty space. The user must maneuver these tiles skillfully until the tiles are in the correct ascending order starting from the lowest number at the top left corner to the largest number at the bottom right.
@@ -16,13 +16,13 @@ Installation:
           Click the run icon to start the game.
 
      Command Line Installation:
-        Unzip the files to a new directory.
-        Make sure you are running a recent version of Python (3.11 or higher should be fine)
-        Make sure you have the Pygame library installed and available (search for Pip install Pygame)
-        launch the program:
-        $ python3 SlideScape.py
-        Optionally provide Command Line Arguments when launching:
-        $ python3 SlideScape.py mute cheat
+          Unzip the files to a new directory.
+          Make sure you are running a recent version of Python (3.11 or higher should be fine)
+          Make sure you have the Pygame library installed and available (search for Pip install Pygame)
+          launch the program:
+          $ python3 SlideScape.py
+          Optionally provide Command Line Arguments when launching:
+          $ python3 SlideScape.py mute cheat
 
 Special Keys:
      Ctrl + u ~ Increases the volume level of the background music. [Supplementary sound effects are still active.]
