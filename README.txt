@@ -12,7 +12,7 @@ Installation:
           Go to File Explorer (Windows) or the Finder (Mac) and copy all the extracted files and paste/move them to the SlideScape directory in PyCharm.
           All files will be pasted under the scripts directory.
           Select 'SlideScape.py'
-          Optional: click the 3 vertical dots to the right of the debug option. Under configutration select 'Edit' in the Script Parameters box enter any Command Line arguments you wish. Each argument should be in double quotes and separated by a space.
+          Optional: click the 3 vertical dots to the right of the debug option. Under configuration select 'Edit' in the Script Parameters box enter any Command Line arguments you wish. Each argument should be in double quotes and separated by a space.
           Click the run icon to start the game.
 
      Command Line Installation:
@@ -42,7 +42,7 @@ Command Line Arguments:
      The following is a list of Command Line Arguments with a very brief description of what each does:
      cheat - Enables Cheat mode (see special keys section).
      debug - Enables Debug Mode (see special keys section) plus additional logging to the console.
-     mute - Gameplay starts with backround music muted.
+     mute - Gameplay starts with background music muted.
      skip_instructions - Goes right to the Gameplay on launch, skipping the instructions screen (unless show_instructions argument is also present).
      show_instructions - Will ALWAYS show instructions when game is launched, regardless of the presence of the "skip_instructions.txt" file or the skip_instructions Command Line Argument.
 
