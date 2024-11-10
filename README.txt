@@ -35,7 +35,7 @@ Special Keys:
 
 Command Line Arguments:
      There are several Command Line arguments that can alter certain aspects of the game.
-     Command Line arguments ase words, separated by spaces, after the program name when launching. The order does not matter. They can appear in any order.
+     Command Line arguments are words, separated by spaces, after the program name when launching. The order does not matter. They can appear in any order.
      example:
      $ python3 SlideScape.py cheat mute
 
@@ -44,7 +44,7 @@ Command Line Arguments:
      debug - Enables Debug Mode (see special keys section) plus additional logging to the console.
      mute - Gameplay starts with background music muted.
      skip_instructions - Goes right to the Gameplay on launch, skipping the instructions screen (unless show_instructions argument is also present).
-     show_instructions - Will ALWAYS show instructions when game is launched, regardless of the presence of the "skip_instructions.txt" file or the skip_instructions Command Line Argument.
+     show_instructions - Will ALWAYS show instructions when the game is launched, regardless of the presence of the "skip_instructions.txt" file or the skip_instructions Command Line Argument.
 
 Control Files:
-     The existence of a file named "skip_instructions.txt" in the same folder as "SlideScape.py" will have the same effect as as the skip_instructions Command Line Argument.
+     The existence of a file named "skip_instructions.txt" in the same folder as "SlideScape.py" will have the same effect as the skip_instructions Command Line Argument.
