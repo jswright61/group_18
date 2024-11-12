@@ -9,11 +9,11 @@
 
 
 import pygame as pg, sys, random, pdb
-from timer import Timer
-from high_score import HighScore
-from colors import *
-from board import Board
-from sound_player import SoundPlayer
+from lib.colors import *
+from lib.timer import Timer
+from lib.high_score import HighScore
+from lib.board import Board
+from lib.sound_player import SoundPlayer
 from pygame.locals import *
 import os.path
 
@@ -73,7 +73,7 @@ def display_instructions_screen():
   inst_surf_3 = inst_screen_font.render(f"the blank space can move. A moved tile", True, WHITE)
   inst_surf_4 = inst_screen_font.render(f"swaps places with the blank space.", True, WHITE)
   inst_surf_5 = inst_screen_font.render(f"Image below shows tiles in winning position.", True, WHITE)
-  game_won_img_surf = pg.transform.scale(pg.image.load("tile_game.jpg").convert_alpha(), (101, 111))
+  game_won_img_surf = pg.transform.scale(pg.image.load("media/tile_game.jpg").convert_alpha(), (101, 111))
   screen.blit(inst_surf_1, (get_x_coord(inst_surf_1), 20))
   screen.blit(inst_surf_2, (get_x_coord(inst_surf_2), 50))
   screen.blit(inst_surf_3, (get_x_coord(inst_surf_3), 80))
