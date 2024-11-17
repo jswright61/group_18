@@ -1,7 +1,7 @@
 import pygame as pg, pdb
 from lib.colors import *
 
-class CenteredText:
+class TextWriter:
   def __init__(self, text_lines, width, font_size = 20, font_name = None, vertical_gutter = 10):
     font = pg.font.Font(font_name, font_size)
     self.lines = []

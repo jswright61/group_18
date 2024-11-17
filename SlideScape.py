@@ -15,7 +15,7 @@ from lib.high_score import HighScore
 from lib.board import Board
 from lib.sound_player import SoundPlayer
 from lib.button import Button
-from lib.centered_text import CenteredText
+from lib.text_writer import TextWriter
 from pygame.locals import *
 import os.path
 
@@ -45,7 +45,7 @@ def should_show_instructions():
     return False
   return True
 
-def render_game_won_text(score, move_count, prev_hs, hs_verb, hs_text_color):
+def render_game_completed_text(score, move_count, prev_hs, hs_verb, hs_text_color):
   lines = [["Your score of:", WHITE],
           [f"{score} ", hs_text_color],
           [f"{hs_verb} the previous", hs_text_color],
@@ -53,19 +53,19 @@ def render_game_won_text(score, move_count, prev_hs, hs_verb, hs_text_color):
           [f"{prev_hs}", WHITE],
           [f"Moves used: {move_count}", WHITE]
           ]
-  CenteredText(lines, board.screen_size[0], font_size = 32).render(screen, 0, 20)
+  TextWriter(lines, board.screen_size[0], font_size = 32).render(screen, 0, 20)
 
-def render_game_exit_text(time_expired):
+def render_exit_text(time_expired):
   global time_exp_text, game_exit_text
   if time_expired:
     if "time_exp_text" not in globals():
-        time_exp_text = CenteredText([["Time expired", WHITE]], board.screen_size[0], font_size = 32)
+        time_exp_text = TextWriter([["Time expired", WHITE]], board.screen_size[0], font_size = 32)
         if "debug" in cl_args:
           print("time_exp_text created")
     time_exp_text.render(screen, 0, 140)
   else:
     if "game_exit_text" not in globals():
-        game_exit_text = CenteredText([["Game Exited", WHITE]], board.screen_size[0], font_size = 32)
+        game_exit_text = TextWriter([["Game Exited", WHITE]], board.screen_size[0], font_size = 32)
         if "debug" in cl_args:
           print("game_exit_text created")
     game_exit_text.render(screen, 0, 140)
@@ -78,7 +78,7 @@ def render_instructions_text():
              ["the blank space can move. A moved tile", WHITE],
              ["swaps places with the blank space.", WHITE],
              ["Image below shows tiles in winning position.", WHITE]]
-    instructions_text = CenteredText(lines, board.screen_size[0], font_size = 20)
+    instructions_text = TextWriter(lines, board.screen_size[0], font_size = 20)
     if "debug" in cl_args:
       print("instructions_text created")
   instructions_text.render(screen, 0, 5)
@@ -111,7 +111,7 @@ def display_instructions_screen():
 def display_main_screen(elapsed, move_count):
   screen.fill(BLACK)
   timer_surf = status_font.render(f"{str(allowed_secs - elapsed)}", True, WHITE)
-  screen.blit(timer_surf, ((302 - timer_surf.get_width()) // 2, 5))
+  screen.blit(timer_surf, ((board.screen_size[0] - timer_surf.get_width()) // 2, 5))
 
   moves_text = status_font.render(f"Moves: {move_count}", True, WHITE)
   screen.blit(moves_text, (10, 5))
@@ -121,7 +121,7 @@ def display_main_screen(elapsed, move_count):
 
   pg.display.flip()
 
-def display_game_won_screen(score, move_count):
+def display_game_completed_screen(score, move_count):
   sound_player.bg_stop()
   hi_score = HighScore()
   quit_button = Button("Quit", 32, origin = (21, 270), width = 120, pad = (10, 3))
@@ -134,7 +134,7 @@ def display_game_won_screen(score, move_count):
   if "debug" in cl_args:
     print(f"Your score of: {score} {hs_verb} the previous high score of {prev_hs}")
     print(f"Moves used: {move_count}")
-  render_game_won_text(score, move_count, prev_hs, hs_verb, hs_text_color)
+  render_game_completed_text(score, move_count, prev_hs, hs_verb, hs_text_color)
   quit_button.render(screen)
   play_again_button.render(screen)
   pg.display.flip()
@@ -158,14 +158,14 @@ def display_game_won_screen(score, move_count):
       pg.event.clear()
     clock.tick(60)
 
-def display_game_exit_screen(time_expired):
+def display_exit_screen(time_expired):
   sound_player.bg_stop()
   quit_button = Button("Quit", 32, origin = (21, 270), width = 120, pad = (10, 3))
   play_again_button = Button("Play Again", 32, origin = (161, 270), width = 120, bg_color = GREEN)
   screen.fill(color = BLACK)
   if time_expired:
     sound_player.play("time_expired")
-  render_game_exit_text(time_expired)
+  render_exit_text(time_expired)
   quit_button.render(screen)
   play_again_button.render(screen)
   pg.display.flip()
@@ -217,7 +217,7 @@ def play_game():
       if event.type == pg.MOUSEBUTTONDOWN:
         click_pos = pg.mouse.get_pos()
         if exit_button.was_clicked(click_pos):
-          display_game_exit_screen(False)
+          display_exit_screen(False)
         else:
           if board.click(click_pos) == 1:
             move_count += 1
@@ -226,10 +226,10 @@ def play_game():
       if event.type == pg.KEYDOWN:
         process_special_keys(event.key, pg.key.get_mods(), timer)
     if board.is_game_won():
-      display_game_won_screen(allowed_secs - timer.elapsed(), move_count)
+      display_game_completed_screen(allowed_secs - timer.elapsed(), move_count)
       break
     if allowed_secs - timer.elapsed() < 1:
-      display_game_exit_screen(True)
+      display_exit_screen(True)
       break
 
     clock.tick(60)

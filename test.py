@@ -15,7 +15,7 @@ from lib.high_score import HighScore
 from lib.board import Board
 from lib.sound_player import SoundPlayer
 from lib.button import Button
-from lib.centered_text import CenteredText
+from lib.text_writer import TextWriter
 from pygame.locals import *
 import os.path
 
@@ -69,7 +69,7 @@ def show_screen():
 
 clock = pg.time.Clock()
 lines = [["now is the time", RED], ["for all good men", WHITE], ["To come to the aid", MED_GRAY], ["Of his country", WHITE]]
-c_text = CenteredText(lines, 302, font_size = 20, font_name = None, vertical_gutter = 10)
+c_text = TextWriter(lines, 302, font_size = 20, font_name = None, vertical_gutter = 10)
 
 show_screen()
 
