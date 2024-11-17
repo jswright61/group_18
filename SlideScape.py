@@ -24,10 +24,8 @@ import os.path
 
 pg.init()
 pg.display.set_caption("SlideScape")
-tile_font = pg.font.Font(None, 32)
 status_font = pg.font.Font(None, 32)
-inst_screen_font = pg.font.Font(None, 20)
-board = Board(98, tile_font) # screen size = (302, 332) with 98 size tile
+board = Board(98, pg.font.Font(None, 32)) # screen size = (302, 332) with 98 size tile
 exit_button = Button("Exit", 32, origin = (206, 5), pad = (10, 1), width = 90, bg_color = RED)
 
 cl_args = list(map(lambda x: x.lower(), sys.argv[1:]))
@@ -35,10 +33,6 @@ sound_player = SoundPlayer(0.2, "mute" in cl_args)
 allowed_secs = 300
 
 screen = pg.display.set_mode(board.screen_size)
-
-
-def get_x_coord(surf, screen_width = board.screen_size[0]):
-  return (screen_width - surf.get_rect().width) // 2
 
 def should_show_instructions():
   # the presence of a file named "skip_instructions.txt" in the same directory as the game file
@@ -93,13 +87,8 @@ def display_instructions_screen():
   screen.fill(color = BLACK)
   start_game_button = Button("Play Game", 32, origin = (91, 285), width = 120, bg_color = GREEN)
   game_won_img_surf = pg.transform.scale(pg.image.load("media/tile_game.jpg").convert_alpha(), (101, 111))
-  # screen.blit(inst_surf_1, (get_x_coord(inst_surf_1), 20))
-  # screen.blit(inst_surf_2, (get_x_coord(inst_surf_2), 50))
-  # screen.blit(inst_surf_3, (get_x_coord(inst_surf_3), 80))
-  # screen.blit(inst_surf_4, (get_x_coord(inst_surf_4), 110))
-  # screen.blit(inst_surf_5, (get_x_coord(inst_surf_5), 140))
-  render_instructions_text()
   screen.blit(game_won_img_surf, (101, 160))
+  render_instructions_text()
   start_game_button.render(screen)
   pg.display.flip()
   while True:
