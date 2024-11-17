@@ -1,5 +1,5 @@
 import pygame as pg, random
-from colors import *
+from lib.colors import *
 
 class Board():
   def __init__(self, rect_width, font, border_size = 2, status_height = 30, tile_color = None, font_color = None):

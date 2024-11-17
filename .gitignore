@@ -1,0 +1,6 @@
+Group18.zip
+__pycache__
+skip_instructions*
+high_score.txt*
+tmp/*
+!.keep

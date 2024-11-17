@@ -3,14 +3,14 @@ import pygame as pg
 class SoundPlayer:
   def __init__(self, volume = 0.4, start_muted = False):
     pg.mixer.init()
-    self.click = pg.mixer.Sound("click.wav")
-    self.restart = pg.mixer.Sound("restart.wav")
-    self.high_score = pg.mixer.Sound("high_score.wav")
-    self.win = pg.mixer.Sound("win.wav")
-    self.time_expired = pg.mixer.Sound("timeout.wav")
+    self.click = pg.mixer.Sound("media/click.wav")
+    self.restart = pg.mixer.Sound("media/restart.wav")
+    self.high_score = pg.mixer.Sound("media/high_score.wav")
+    self.win = pg.mixer.Sound("media/win.wav")
+    self.time_expired = pg.mixer.Sound("media/timeout.wav")
     self.vol_level = volume
     self.muted = start_muted
-    pg.mixer.music.load("background_music.wav")
+    pg.mixer.music.load("media/background_music.wav")
     pg.mixer.music.set_volume(self.vol_level)
 
   def bg_start(self):

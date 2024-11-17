@@ -9,11 +9,13 @@
 
 
 import pygame as pg, sys, random, pdb
-from timer import Timer
-from high_score import HighScore
-from colors import *
-from board import Board
-from sound_player import SoundPlayer
+from lib.colors import *
+from lib.timer import Timer
+from lib.high_score import HighScore
+from lib.board import Board
+from lib.sound_player import SoundPlayer
+from lib.button import Button
+from lib.text_writer import TextWriter
 from pygame.locals import *
 import os.path
 
@@ -22,38 +24,15 @@ import os.path
 
 pg.init()
 pg.display.set_caption("SlideScape")
-tile_font = pg.font.Font(None, 32)
 status_font = pg.font.Font(None, 32)
-end_screen_font = pg.font.Font(None, 32)
-inst_screen_font = pg.font.Font(None, 20)
-button_font = pg.font.Font(None, 32)
-board = Board(98, tile_font)
-# screen size = (302, 332) with 98 size tile
+board = Board(98, pg.font.Font(None, 32)) # screen size = (302, 332) with 98 size tile
+exit_button = Button("Exit", 32, origin = (206, 5), pad = (10, 1), width = 90, bg_color = RED)
 
 cl_args = list(map(lambda x: x.lower(), sys.argv[1:]))
 sound_player = SoundPlayer(0.2, "mute" in cl_args)
 allowed_secs = 300
 
-resolution = board.screen_size
-screen = pg.display.set_mode(resolution)
-screen.fill(color = BLACK)
-
-status_rect = pg.Rect(0, 0, 302, 34)
-status_surf = pg.Surface((status_rect.w, status_rect.h))
-status_surf.fill(BLACK)
-
-exit_button_rect = pg.Rect(206, 5, 90, 24)
-exit_text = button_font.render("Exit", True, BLACK)
-quit_button_rect = pg.Rect(21, 270, 120, 24)
-quit_text = button_font.render("Quit", True, BLACK)
-play_again_button_rect = pg.Rect(161, 270, 120, 24)
-play_again_text = button_font.render("Play Again", True, BLACK)
-start_game_button_rect = pg.Rect(91, 285, 120, 24)
-start_game_text = button_font.render("Play Game", True, BLACK)
-
-
-def get_x_coord(surf, screen_width = resolution[0]):
-  return (screen_width - surf.get_rect().width) // 2
+screen = pg.display.set_mode(board.screen_size)
 
 def should_show_instructions():
   # the presence of a file named "skip_instructions.txt" in the same directory as the game file
@@ -66,22 +45,51 @@ def should_show_instructions():
     return False
   return True
 
+def render_game_completed_text(score, move_count, prev_hs, hs_verb, hs_text_color):
+  lines = [["Your score of:", WHITE],
+          [f"{score} ", hs_text_color],
+          [f"{hs_verb} the previous", hs_text_color],
+          [f"high score of", WHITE],
+          [f"{prev_hs}", WHITE],
+          [f"Moves used: {move_count}", WHITE]
+          ]
+  TextWriter(lines, board.screen_size[0], font_size = 32).render(screen, 0, 20)
+
+def render_exit_text(time_expired):
+  global time_exp_text, game_exit_text
+  if time_expired:
+    if "time_exp_text" not in globals():
+        time_exp_text = TextWriter([["Time expired", WHITE]], board.screen_size[0], font_size = 32)
+        if "debug" in cl_args:
+          print("time_exp_text created")
+    time_exp_text.render(screen, 0, 140)
+  else:
+    if "game_exit_text" not in globals():
+        game_exit_text = TextWriter([["Game Exited", WHITE]], board.screen_size[0], font_size = 32)
+        if "debug" in cl_args:
+          print("game_exit_text created")
+    game_exit_text.render(screen, 0, 140)
+
+def render_instructions_text():
+  global instructions_text
+  if "instructions_text" not in globals():
+    lines = [["Arrange the tiles in ascending order.", WHITE],
+             ["Move a tile by clicking it. Only tiles next to", WHITE],
+             ["the blank space can move. A moved tile", WHITE],
+             ["swaps places with the blank space.", WHITE],
+             ["Image below shows tiles in winning position.", WHITE]]
+    instructions_text = TextWriter(lines, board.screen_size[0], font_size = 20)
+    if "debug" in cl_args:
+      print("instructions_text created")
+  instructions_text.render(screen, 0, 5)
+
 def display_instructions_screen():
   screen.fill(color = BLACK)
-  inst_surf_1 = inst_screen_font.render(f"Arrange the tiles in ascending order.", True, WHITE)
-  inst_surf_2 = inst_screen_font.render(f"Move a tile by clicking it. Only tiles next to", True, WHITE)
-  inst_surf_3 = inst_screen_font.render(f"the blank space can move. A moved tile", True, WHITE)
-  inst_surf_4 = inst_screen_font.render(f"swaps places with the blank space.", True, WHITE)
-  inst_surf_5 = inst_screen_font.render(f"Image below shows tiles in winning position.", True, WHITE)
-  game_won_img_surf = pg.transform.scale(pg.image.load("tile_game.jpg").convert_alpha(), (101, 111))
-  screen.blit(inst_surf_1, (get_x_coord(inst_surf_1), 20))
-  screen.blit(inst_surf_2, (get_x_coord(inst_surf_2), 50))
-  screen.blit(inst_surf_3, (get_x_coord(inst_surf_3), 80))
-  screen.blit(inst_surf_4, (get_x_coord(inst_surf_4), 110))
-  screen.blit(inst_surf_5, (get_x_coord(inst_surf_5), 140))
+  start_game_button = Button("Play Game", 32, origin = (91, 285), width = 120, bg_color = GREEN)
+  game_won_img_surf = pg.transform.scale(pg.image.load("media/tile_game.jpg").convert_alpha(), (101, 111))
   screen.blit(game_won_img_surf, (101, 160))
-  pg.draw.rect(screen, GREEN, start_game_button_rect)
-  screen.blit(start_game_text, (start_game_button_rect.x + 3, start_game_button_rect.y + 2))
+  render_instructions_text()
+  start_game_button.render(screen)
   pg.display.flip()
   while True:
     # This shows the screen indefinitely while processing events
@@ -94,7 +102,7 @@ def display_instructions_screen():
         sys.exit(0)
       if event.type == pg.MOUSEBUTTONDOWN:
         click_pos = pg.mouse.get_pos()
-        if start_game_button_rect.collidepoint(click_pos):
+        if start_game_button.was_clicked(click_pos):
           random.shuffle(board.positions)
           play_game()
       pg.event.clear()
@@ -103,20 +111,21 @@ def display_instructions_screen():
 def display_main_screen(elapsed, move_count):
   screen.fill(BLACK)
   timer_surf = status_font.render(f"{str(allowed_secs - elapsed)}", True, WHITE)
-  screen.blit(timer_surf, ((302 - timer_surf.get_width()) // 2, 5))
+  screen.blit(timer_surf, ((board.screen_size[0] - timer_surf.get_width()) // 2, 5))
 
   moves_text = status_font.render(f"Moves: {move_count}", True, WHITE)
   screen.blit(moves_text, (10, 5))
 
-  pg.draw.rect(screen, RED, exit_button_rect)
-  screen.blit(exit_text, (exit_button_rect.x + 22, exit_button_rect.y + 2))
+  exit_button.render(screen)
   board.blit(screen)
 
   pg.display.flip()
 
-def display_game_won_screen(score, move_count):
-  hi_score = HighScore()
+def display_game_completed_screen(score, move_count):
   sound_player.bg_stop()
+  hi_score = HighScore()
+  quit_button = Button("Quit", 32, origin = (21, 270), width = 120, pad = (10, 3))
+  play_again_button = Button("Play Again", 32, origin = (161, 270), width = 120, bg_color = GREEN)
   screen.fill(color = BLACK)
   prev_hs, hs_verb, hs_text_color = hi_score.check_high_score(score)
   if score > prev_hs:
@@ -125,22 +134,9 @@ def display_game_won_screen(score, move_count):
   if "debug" in cl_args:
     print(f"Your score of: {score} {hs_verb} the previous high score of {prev_hs}")
     print(f"Moves used: {move_count}")
-  over_surf_1 = end_screen_font.render(f"Your score of:", True, WHITE)
-  over_surf_2 = end_screen_font.render(f"{score} ", True, hs_text_color)
-  over_surf_3 = end_screen_font.render(f"{hs_verb} the previous", True, hs_text_color)
-  over_surf_4 = end_screen_font.render(f"high score of", True, WHITE)
-  over_surf_5 = end_screen_font.render(f"{prev_hs}", True, WHITE)
-  moves_surf = end_screen_font.render(f"Moves used: {move_count}", True, WHITE)
-  screen.blit(over_surf_1, (get_x_coord(over_surf_1), 70))
-  screen.blit(over_surf_2, (get_x_coord(over_surf_2), 100))
-  screen.blit(over_surf_3, (get_x_coord(over_surf_3), 130))
-  screen.blit(over_surf_4, (get_x_coord(over_surf_4), 160))
-  screen.blit(over_surf_5, (get_x_coord(over_surf_5), 190))
-  screen.blit(moves_surf, (get_x_coord(moves_surf), 220))
-  pg.draw.rect(screen, RED, quit_button_rect)
-  screen.blit(quit_text, (quit_button_rect.x + 35, quit_button_rect.y + 2))
-  pg.draw.rect(screen, GREEN, play_again_button_rect)
-  screen.blit(play_again_text, (play_again_button_rect.x + 6, play_again_button_rect.y + 2))
+  render_game_completed_text(score, move_count, prev_hs, hs_verb, hs_text_color)
+  quit_button.render(screen)
+  play_again_button.render(screen)
   pg.display.flip()
   while True:
     # This shows the screen indefinitely while processing events
@@ -153,26 +149,25 @@ def display_game_won_screen(score, move_count):
         sys.exit(0)
       if event.type == pg.MOUSEBUTTONDOWN:
         click_pos = pg.mouse.get_pos()
-        if quit_button_rect.collidepoint(click_pos):
+        if quit_button.was_clicked(click_pos):
           sys.exit(0)
-        if play_again_button_rect.collidepoint(click_pos):
+        if play_again_button.was_clicked(click_pos):
           random.shuffle(board.positions)
           play_game()
           sound_player.play("restart")
       pg.event.clear()
     clock.tick(60)
 
-def display_game_exit_screen(display_text, play_sound = False ):
+def display_exit_screen(time_expired):
   sound_player.bg_stop()
-  if play_sound:
-    sound_player.play("time_expired")
+  quit_button = Button("Quit", 32, origin = (21, 270), width = 120, pad = (10, 3))
+  play_again_button = Button("Play Again", 32, origin = (161, 270), width = 120, bg_color = GREEN)
   screen.fill(color = BLACK)
-  over_surf_1 = end_screen_font.render(f"{display_text}", True, WHITE)
-  screen.blit(over_surf_1, (get_x_coord(over_surf_1), 140))
-  pg.draw.rect(screen, RED, quit_button_rect)
-  screen.blit(quit_text, (quit_button_rect.x + 35, quit_button_rect.y + 2))
-  pg.draw.rect(screen, GREEN, play_again_button_rect)
-  screen.blit(play_again_text, (play_again_button_rect.x + 3, play_again_button_rect.y + 2))
+  if time_expired:
+    sound_player.play("time_expired")
+  render_exit_text(time_expired)
+  quit_button.render(screen)
+  play_again_button.render(screen)
   pg.display.flip()
   while True:
     for event in pg.event.get():
@@ -182,9 +177,9 @@ def display_game_exit_screen(display_text, play_sound = False ):
         sys.exit(0)
       if event.type == pg.MOUSEBUTTONDOWN:
         click_pos = pg.mouse.get_pos()
-        if quit_button_rect.collidepoint(click_pos):
+        if quit_button.was_clicked(click_pos):
           sys.exit(0)
-        if play_again_button_rect.collidepoint(click_pos):
+        if play_again_button.was_clicked(click_pos):
           random.shuffle(board.positions)
           sound_player.play("restart")
           play_game()
@@ -221,8 +216,8 @@ def play_game():
         sys.exit(0)
       if event.type == pg.MOUSEBUTTONDOWN:
         click_pos = pg.mouse.get_pos()
-        if exit_button_rect.collidepoint(click_pos):
-          display_game_exit_screen("Game exited")
+        if exit_button.was_clicked(click_pos):
+          display_exit_screen(False)
         else:
           if board.click(click_pos) == 1:
             move_count += 1
@@ -231,10 +226,10 @@ def play_game():
       if event.type == pg.KEYDOWN:
         process_special_keys(event.key, pg.key.get_mods(), timer)
     if board.is_game_won():
-      display_game_won_screen(allowed_secs - timer.elapsed(), move_count)
+      display_game_completed_screen(allowed_secs - timer.elapsed(), move_count)
       break
     if allowed_secs - timer.elapsed() < 1:
-      display_game_exit_screen("Time expired", True)
+      display_exit_screen(True)
       break
 
     clock.tick(60)
